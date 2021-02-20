@@ -35,13 +35,12 @@ public class GlobalControllerAdvice {
      */
     @ResponseBody
     @ExceptionHandler(value = Exception.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, Object> errorHandler(Exception ex) {
-        log.warn("e:{}" , ex);
-        Map<String, Object> result = new HashMap<>();
-        result.put("msg", ex.getMessage() );
-        result.put("message", "系统错误，请联系管理员");
-        return result;
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.OK)
+    public Res errorHandler(Exception ex) {
+        log.debug("e:{}" , ex);
+        Res res = new Res(HttpStatus.INTERNAL_SERVER_ERROR.value(),ex.getMessage(),"系统错误，请联系管理员");
+        return res;
     }
     /**
      * 参数异常捕捉处理 400
@@ -50,28 +49,26 @@ public class GlobalControllerAdvice {
      */
     @ResponseBody
     @ExceptionHandler(value = ParamException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, Object> paramHandler(ParamException ex) {
-        log.warn("e:{}" , ex);
-        Map<String, Object> result = new HashMap<>();
-        result.put("msg", ex.getMsg() );
-        result.put("message", "param error" );
-        return result;
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.OK)
+    public Res ResparamHandler(ParamException ex) {
+        log.debug("e:{}" , ex);
+        Res res = new Res( HttpStatus.BAD_REQUEST.value(), ex.getMsg(), "参数错误" );
+        return res;
     }
     /**
-     * 权限异常捕捉处理
+     * 编码人员主动抛出的权限异常
      * @param ex 403
      * @return
      */
     @ResponseBody
     @ExceptionHandler(value = ForbidException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public Map<String, Object> paramHandler(ForbidException ex) {
-        log.warn("e:{}" , ex);
-        Map<String, Object> result = new HashMap<>();
-        result.put("msg", ex.getMsg() );
-        result.put("message", "无操作权限" );
-        return result;
+//    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.OK)
+    public Res paramHandler(ForbidException ex) {
+        log.debug("e:{}" , ex);
+        Res res = new Res( HttpStatus.FORBIDDEN.value(), ex.getMsg(), "无操作权限" );
+        return res;
     }
     /**
      * springboot中参数校验，为了返回更易看懂的信息做的封装
@@ -80,9 +77,10 @@ public class GlobalControllerAdvice {
      */
     @ResponseBody
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, Object> argumentHandler(MethodArgumentNotValidException ex) {
-        log.warn("e:{}" , ex);
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.OK)
+    public Res argumentHandler(MethodArgumentNotValidException ex) {
+        log.debug("e:{}" , ex);
         Map<String, Object> result = new HashMap<>();
         String msg = ex.getMessage();
         String[] split = msg.split("default message");
@@ -92,28 +90,24 @@ public class GlobalControllerAdvice {
             sb.append( split[ split.length-1 ] );
             msg = sb.toString();
         } catch (IndexOutOfBoundsException e) {
-            log.warn("检查报错情况：{}", msg);
+            log.debug("检查报错情况：{}", msg);
         }
-        log.info("错误信息:{}",ex.getMessage());
-        result.put("msg", msg);
-        result.put("message", "参数错误");
-        return result;
+        Res res = new Res( HttpStatus.BAD_REQUEST.value(), msg, "参数错误" );
+        return res;
     }
 
     /**
-     * 当接口需要返回404时
+     * 当接口需要返回404时，此处的404为编码者主动抛出
      * @param e 404
      * @return
      */
     @ResponseBody
     @ExceptionHandler(value = NotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, Object> notFound(NotFoundException e){
-        log.warn("e:{}" , e);
-        Map<String, Object> result = new HashMap<>();
-        log.info("错误信息:{}",e.getMessage());
-        result.put("msg", e.getMessage() );
-        result.put("message", "参数错误");
-        return result;
+    @ResponseStatus(HttpStatus.OK)
+//    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Res notFound(NotFoundException e){
+        log.debug("e:{}" , e);
+        Res res = new Res( HttpStatus.NOT_FOUND.value(), e.getMsg(), "资源不存在" );
+        return res;
     }
 }
